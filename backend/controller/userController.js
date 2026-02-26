@@ -7,18 +7,21 @@ import crypto from "crypto";
 
 //@ ================= REGISTER USER =================
 export const registerUser = handleAsyncError(async (req, res, next) => {
-  const { name, email, password } = req.body;
+  const { name, email, password } = req.body; //! Destructuring request body
 
   if (!name || !email || !password) {
+    // ! Checking if all the fields are filled
     return next(new HandleError("Please fill all the fields", 400));
   }
 
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ email }); // ! Checking if user already exists
   if (existingUser) {
+    // ! If user already exists then return error
     return next(new HandleError("User already exists", 400));
   }
 
   const user = await User.create({
+    // ! Creating user object
     name,
     email,
     password,
@@ -28,7 +31,7 @@ export const registerUser = handleAsyncError(async (req, res, next) => {
     },
   });
 
-  sendToken(user, 201, res);
+  sendToken(user, 201, res); // ! Sending token
 });
 
 //@ ================= LOGIN USER =================
@@ -212,5 +215,70 @@ export const updateUserDetails = handleAsyncError(async (req, res, next) => {
     success: true,
     message: "User details updated successfully",
     user,
+  });
+});
+
+// @ ================= ADMIN  GETTING ALL USERS INFORMATION =================
+export const getUserList = handleAsyncError(async (req, res, next) => {
+  const users = await User.find();
+
+  return res.status(200).json({
+    success: true,
+    users,
+  });
+});
+
+// @ ================= ADMIN  GETTING SINGLE USER INFORMATION =================
+export const getSingleUser = handleAsyncError(async (req, res, next) => {
+  const { id } = req.params;
+
+  const user = await User.findById(id);
+  if (!user) {
+    return next(new HandleError("User not found", 404));
+  }
+
+  return res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
+// @ ================= ADMIN  UPDATING USER ROLE =================
+export const updateUserRole = handleAsyncError(async (req, res, next) => {
+  const { id } = req.params;
+  const { role } = req.body;
+
+  const newUserData = {
+    role,
+  };
+
+  const user = await User.findByIdAndUpdate(id, newUserData, {
+    new: true,
+    runValidators: true,
+  });
+  if (!user) {
+    return next(new HandleError("User not exist", 404));
+  }
+  return res.status(200).json({
+    success: true,
+    message: "User role updated successfully",
+    user,
+  });
+});
+
+// @ ================= ADMIN  DELETING USER =================
+export const deleteUser = handleAsyncError(async (req, res, next) => {
+  const { id } = req.params;
+
+  const user = await User.findById(id);
+  if (!user) {
+    return next(new HandleError("User not found", 404));
+  }
+
+  await User.findByIdAndDelete(id);
+
+  return res.status(200).json({
+    success: true,
+    message: "User deleted successfully",
   });
 });

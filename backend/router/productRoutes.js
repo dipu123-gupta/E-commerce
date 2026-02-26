@@ -1,8 +1,12 @@
 import express from "express";
 import {
+  adminGetAllProducts,
   createProduct,
+  createProductReview,
   deleteProduct,
+  deleteReview,
   getAllProducts,
+  getProductReviews,
   getSingleProduct,
   updateProduct,
 } from "../controller/productController.js";
@@ -35,5 +39,17 @@ router.delete(
 
 router.get("/products/:id", verifyUser, getSingleProduct);
 
+router.get(
+  "/admin/products",
+  verifyUser,
+  roleBasedAccess("admin"),
+  adminGetAllProducts,
+);
+
+router.post("/review", verifyUser, createProductReview);
+
+router.get("/reviews", getProductReviews);
+
+router.delete("/reviews", verifyUser, deleteReview);
 export default router;
 // @route   GET /api/v1/products
