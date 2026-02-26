@@ -13,16 +13,21 @@ const router = express.Router();
 //@ login user to access all products
 router.get("/products", verifyUser, getAllProducts);
 //@ login admin to create products
-router.post("/products", verifyUser, roleBasedAccess("admin"), createProduct);
+router.post(
+  "/admin/product/create",
+  verifyUser,
+  roleBasedAccess("admin"),
+  createProduct,
+);
 router.put(
-  "/products/:id",
+  "/admin/products/:id",
   verifyUser,
   roleBasedAccess("admin"),
   updateProduct,
 );
 //@ login admin to delete products
 router.delete(
-  "/products/:id",
+  "/admin/products/:id",
   verifyUser,
   roleBasedAccess("admin"),
   deleteProduct,
