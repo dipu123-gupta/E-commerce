@@ -1,8 +1,17 @@
-import express from 'express';
+import express from "express";
+import productRoutes from "./router/productRoutes.js";
+import { errorMiddleware } from "./middleware/error.js";
+import user from "./router/userRouters.js";
+import cookieParser from "cookie-parser";
 const app = express();
-// import cors from 'cors';
-// import morgan from 'morgan';
 
+// Middleware to parse JSON bodies
+app.use(express.json());
+app.use(cookieParser());
 
+app.use("/api/v1", productRoutes);
 
-export default app
+app.use("/api/v1/auth", user);
+
+app.use(errorMiddleware);
+export default app;
