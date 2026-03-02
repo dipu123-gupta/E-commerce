@@ -18,7 +18,7 @@ const Home = () => {
   );
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(getProducts());
+    dispatch(getProducts({ keyword: "", currentPage: 1 }));
   }, [dispatch]);
 
   useEffect(() => {

@@ -1,6 +1,7 @@
-import React from "react";
+import React, { use } from "react";
 import "../componentStyles/Navbar.css";
-import { Link } from "react-router-dom";
+import "../pageStyles/Search.css";
+import { Link, useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import ShopCartIcon from "@mui/icons-material/ShoppingCart";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -8,7 +9,20 @@ import CloseIcon from "@mui/icons-material/Close";
 import MenuIcon from "@mui/icons-material/Menu";
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const toggleSearch = () => setIsSearchOpen(!isSearchOpen);
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const navigate = useNavigate();
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim() !== "") {
+      navigate(`/products?keyword=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      navigate("/products");
+    }
+    setSearchQuery("");
+  };
   const isAuthenticated = false;
   return (
     <nav className="navbar">
@@ -37,18 +51,27 @@ const Navbar = () => {
           </ul>
         </div>
         <div className="navbar-icons">
-          {/* <div className="serch-container">
-            <form className="search-form">
+          <div className="serch-container">
+            <form
+              className={`search-form ${isSearchOpen ? "active" : ""}`}
+              onSubmit={handleSearchSubmit}
+            >
               <input
                 type="text"
                 className="search-input"
                 placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <button type="submit" className="search-icon">
+              <button
+                type="button"
+                className="search-icon"
+                onClick={toggleSearch}
+              >
                 <SearchIcon focusable="false" />
               </button>
             </form>
-          </div> */}
+          </div>
           <div className="cart-container">
             <Link to="/cart">
               <ShopCartIcon className="icon" />

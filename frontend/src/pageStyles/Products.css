@@ -69,6 +69,11 @@
   color: var(--text-primary);
 }
 
+.active-category{
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+}
 
 @media (max-width: 768px) {
   .products-layout {

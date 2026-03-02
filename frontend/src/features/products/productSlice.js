@@ -3,15 +3,27 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 export const getProducts = createAsyncThunk(
   "product/getProducts",
-  async (_, { rejectWithValue }) => {
+  async ({ keyword, page = 1, category }, { rejectWithValue }) => {
     try {
-      const link = "/api/v1/products";
+      let link = `/api/v1/products?page=${page}`;
+
+      if (keyword) {
+        link += `&keyword=${encodeURIComponent(keyword)}`;
+      }
+
+      if (category) {
+        link += `&category=${category}`;
+      }
+
       const { data } = await axios.get(link);
+
       console.log("Response", data);
 
       return data;
     } catch (error) {
-      return rejectWithValue(error.message?.data || "Something went wrong");
+      return rejectWithValue(
+        error.response?.data?.message || "Something went wrong",
+      );
     }
   },
 );
@@ -36,6 +48,9 @@ const productSlice = createSlice({
     loading: false,
     error: null,
     product: null,
+    resultPerPage: 6,
+    totalPages: 0,
+    currentPage: 1,
   },
   reducers: {
     removeError: (state) => {
@@ -55,10 +70,14 @@ const productSlice = createSlice({
         state.error = null;
         state.products = action.payload.products;
         state.productCount = action.payload.productCount;
+        state.resultPerPage = action.payload.resultPerPage;
+        state.totalPages = action.payload.totalPages;
+        state.currentPage = action.payload.currentPage;
       })
       .addCase(getProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Something went wrong";
+        state.products = [];
       });
 
     // product details lifecycle
