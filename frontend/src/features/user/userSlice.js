@@ -24,19 +24,19 @@ export const registerUser = createAsyncThunk(
 //  Login User
 export const loginUser = createAsyncThunk(
   "user/loginUser",
-  async (user, { rejectWithValue }) => {
+  async ({ email, password }, { rejectWithValue }) => {
     try {
       const config = {
         headers: {
           "Content-Type": "application/json",
         },
       };
-      const { data } = await axios.post(`/api/v1/auth/login`, user, config);
-      return {
-        user: data.user,
-        success: data.success,
-        message: data.message,
-      };
+      const { data } = await axios.post(
+        `/api/v1/auth/login`,
+        { email, password },
+        config,
+      );
+      return data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data || "Registration failed please try again later.",
@@ -63,6 +63,7 @@ const userSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    // register user lifecycle
     builder
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
@@ -73,12 +74,31 @@ const userSlice = createSlice({
         state.error = null;
         state.user = action.payload.user || null;
         state.isAuthenticated = Boolean(action.payload.user);
-        state.success = action.payload.success;
+        state.success = action.payload.message || "Login Successfully";
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error =
           action.payload?.message || "Login failed please try again.";
+        state.user = null;
+        state.isAuthenticated = false;
+      })
+      // login user lifecycle
+      .addCase(registerUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.user = action.payload.user || null;
+        state.isAuthenticated = Boolean(action.payload.user);
+        state.success = action.payload.success;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload?.message || "Registration failed please try again.";
         state.user = null;
         state.isAuthenticated = false;
       });
